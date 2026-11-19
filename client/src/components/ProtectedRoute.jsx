@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.jsx';
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, adminOnly = false }) {
   const { user, loading, error, retryLoading } = useAuth();
   const location = useLocation();
 
@@ -19,6 +19,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (adminOnly && user.role !== 'admin') return <Navigate to="/transactions" replace />;
 
   return children;
 }

@@ -71,6 +71,7 @@ export default function TransactionsPage() {
       <section className="table-card">
         <div className="table-scroll">
           <table>
+            <caption className="sr-only">Historique des transactions de votre compte</caption>
             <thead><tr><th>Date</th><th>Transaction</th><th>Catégorie</th><th>Type</th><th>Montant</th><th>Tags</th><th><span className="sr-only">Actions</span></th></tr></thead>
             <tbody>
               {loading ? <tr><td className="table-message" colSpan="7">Chargement des transactions…</td></tr>

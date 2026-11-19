@@ -12,6 +12,8 @@ function publicUser(user) {
     id: user._id,
     nom_complet: user.nom_complet,
     email: user.email,
+    role: user.role ?? 'client',
+    status: user.status ?? 'approved',
     devise: user.devise,
     date_inscription: user.date_inscription
   };
@@ -39,9 +41,12 @@ router.post('/register', async (req, res, next) => {
     }
 
     const password_hash = await bcrypt.hash(password, 12);
-    const user = await User.create({ nom_complet, email, password_hash });
-    setSessionCookie(res, user);
-    res.status(201).json({ user: publicUser(user) });
+    const user = await User.create({ nom_complet, email, password_hash, role: 'client', status: 'pending' });
+    res.status(201).json({
+      pendingApproval: true,
+      message: 'Votre demande de compte a ete envoyee. Vous pourrez vous connecter apres validation par l’administrateur.',
+      user: publicUser(user)
+    });
   } catch (error) {
     if (error.code === 11000) return res.status(409).json({ message: 'Un compte utilise deja cette adresse e-mail.' });
     next(error);
@@ -66,6 +71,12 @@ router.post('/login', async (req, res, next) => {
       : false;
     if (!user || !passwordMatches) {
       return res.status(401).json({ message: 'Adresse e-mail ou mot de passe incorrect.' });
+    }
+    if (user.status === 'pending') {
+      return res.status(403).json({ message: 'Votre compte est en attente de validation par l’administrateur.' });
+    }
+    if (user.status === 'rejected') {
+      return res.status(403).json({ message: 'Votre demande de compte a ete refusee. Contactez l’administrateur.' });
     }
 
     setSessionCookie(res, user);

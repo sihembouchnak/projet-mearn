@@ -19,7 +19,18 @@ export const api = {
   updateTransaction: async (id, data) => (await http.put(`/transactions/${id}`, data)).data,
   deleteTransaction: async (id) => (await http.delete(`/transactions/${id}`)).data,
   categoryStats: async () => (await http.get('/stats/by-category')).data,
-  monthlyStats: async () => (await http.get('/stats/monthly')).data
+  monthlyStats: async () => (await http.get('/stats/monthly')).data,
+  adminOverview: async () => (await http.get('/admin/overview')).data,
+  adminUsers: async (params = {}) => (await http.get('/admin/users', { params })).data,
+  adminUpdateUserStatus: async (id, status) => (await http.patch(`/admin/users/${id}/status`, { status })).data,
+  adminTransactions: async (params = {}) => (await http.get('/admin/transactions', { params })).data,
+  adminCreateTransaction: async (data) => (await http.post('/admin/transactions', data)).data,
+  adminUpdateTransaction: async (id, data) => (await http.put(`/admin/transactions/${id}`, data)).data,
+  adminDeleteTransaction: async (id) => (await http.delete(`/admin/transactions/${id}`)).data,
+  adminCategories: async () => (await http.get('/admin/categories')).data,
+  adminCreateCategory: async (data) => (await http.post('/admin/categories', data)).data,
+  adminUpdateCategory: async (id, data) => (await http.put(`/admin/categories/${id}`, data)).data,
+  adminDeleteCategory: async (id) => (await http.delete(`/admin/categories/${id}`)).data
 };
 
 export function getErrorMessage(error) {

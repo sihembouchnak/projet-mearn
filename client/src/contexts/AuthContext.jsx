@@ -35,15 +35,14 @@ export function AuthProvider({ children }) {
   }, [retry]);
 
   async function register(data) {
-    const result = await api.register(data);
-    setUser(result.user);
-    setError('');
+    return api.register(data);
   }
 
   async function login(data) {
     const result = await api.login(data);
     setUser(result.user);
     setError('');
+    return result.user;
   }
 
   async function logout() {

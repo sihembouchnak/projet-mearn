@@ -73,7 +73,7 @@ Les mots de passe sont haches avec bcrypt et jamais renvoyes par l'API. Une sess
 
 | Methode | Route | Fonction |
 | --- | --- | --- |
-| POST | `/api/auth/register` | Cree un compte et ouvre une session |
+| POST | `/api/auth/register` | Cree un compte client en attente de validation |
 | POST | `/api/auth/login` | Verifie l'e-mail et le mot de passe |
 | POST | `/api/auth/logout` | Ferme la session |
 | GET | `/api/auth/me` | Renvoie le profil connecte |
@@ -92,7 +92,29 @@ Les mots de passe sont haches avec bcrypt et jamais renvoyes par l'API. Une sess
 | GET | `/api/stats/by-category` | Agregation des depenses par categorie (`$match`, `$group`, `$sum`, `$avg`, `$lookup`) |
 | GET | `/api/stats/monthly` | Agregation mensuelle (`$year`, `$month`) et totaux globaux via `$facet` |
 
-`GET /api/health` fournit un controle de disponibilite sans authentification : il renvoie `200` lorsque MongoDB est pret et `503` avec l'etat `unavailable` si la base est inaccessible. L'API reste disponible pour expliquer l'erreur au frontend au lieu de terminer silencieusement. Les montants des transactions ayant des lignes d'articles sont recalcules cote serveur pour rester coherents. L'identifiant du proprietaire provient toujours de la session, jamais du corps de la requete.
+### Administration
+
+Les nouveaux comptes clients restent en attente jusqu'a l'approbation d'un administrateur. Les routes `/api/admin/*` verifient le role cote serveur et permettent de consulter le tableau de bord global, approuver ou refuser les comptes, gerer les transactions globales et administrer les categories. Les mots de passe et les empreintes de session ne sont jamais accessibles depuis cette interface.
+
+Pour donner les droits administrateur a un compte existant, utilisez une commande locale avec l'adresse du compte voulu :
+
+```bash
+npm run admin:promote --workspace server -- admin@example.com
+```
+
+Cette operation approuve le compte et invalide ses sessions actives ; reconnectez-vous ensuite. Le formulaire public ne peut jamais attribuer le role administrateur.
+
+| Methode | Route | Fonction |
+| --- | --- | --- |
+| GET | `/api/admin/overview` | Indicateurs globaux du site |
+| GET | `/api/admin/users` | Liste et recherche des comptes |
+| PATCH | `/api/admin/users/:id/status` | Approbation ou refus d'un compte client |
+| GET, POST | `/api/admin/transactions` | Consulter ou creer une transaction pour un client approuve |
+| PUT, DELETE | `/api/admin/transactions/:id` | Modifier ou supprimer une transaction |
+| GET, POST | `/api/admin/categories` | Lister ou creer une categorie |
+| PUT, DELETE | `/api/admin/categories/:id` | Modifier ou supprimer une categorie non utilisee |
+
+`GET /api/health` fournit un controle de disponibilite sans authentification : il renvoie `200` lorsque MongoDB est pret et `503` avec l'etat `unavailable` si la base est inaccessible. L'API reste disponible pour expliquer l'erreur au frontend au lieu de terminer silencieusement. Les montants des transactions ayant des lignes d'articles sont recalcules cote serveur pour rester coherents. Pour les routes clients, le proprietaire provient toujours de la session ; seule l’API admin peut cibler un compte client approuve apres verification de son role administrateur.
 
 ## Structure
 

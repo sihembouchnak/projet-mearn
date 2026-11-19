@@ -8,6 +8,7 @@ import AuthPage from './pages/AuthPage.jsx';
 import TransactionsPage from './pages/TransactionsPage.jsx';
 
 const StatsPage = lazy(() => import('./pages/StatsPage.jsx'));
+const AdminPage = lazy(() => import('./pages/AdminPage.jsx'));
 
 export default function App() {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ export default function App() {
               <Route path="/transactions/:id/edit" element={<AddTransactionPage />} />
               <Route path="/stats" element={<StatsPage />} />
             </Route>
+            <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to={user ? '/transactions' : '/login'} replace />} />
           </Routes>
         </Suspense>

@@ -14,6 +14,7 @@ export default function AuthPage({ mode }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [registrationSent, setRegistrationSent] = useState(false);
 
   if (user) return <Navigate to="/transactions" replace />;
 
@@ -26,9 +27,14 @@ export default function AuthPage({ mode }) {
     }
     setSubmitting(true);
     try {
-      if (isRegister) await register({ nom_complet: name, email, password });
-      else await login({ email, password });
-      const destination = location.state?.from?.pathname || '/transactions';
+      if (isRegister) {
+        await register({ nom_complet: name, email, password });
+        setRegistrationSent(true);
+        return;
+      }
+      const authenticatedUser = await login({ email, password });
+      const defaultDestination = authenticatedUser.role === 'admin' ? '/admin' : '/transactions';
+      const destination = location.state?.from?.pathname || defaultDestination;
       navigate(destination, { replace: true });
     } catch (requestError) {
       setError(getErrorMessage(requestError));
@@ -47,7 +53,14 @@ export default function AuthPage({ mode }) {
           ? 'Créez votre espace personnel pour suivre vos revenus et vos dépenses.'
           : 'Connectez-vous pour retrouver vos transactions et vos statistiques.'}</p>
         {(error || sessionError) && <div className="alert alert-error" role="alert">{error || sessionError}</div>}
-        <form className="auth-form" onSubmit={submit}>
+        {registrationSent ? (
+          <div className="registration-success" role="status">
+            <span className="registration-success-icon" aria-hidden="true">✓</span>
+            <h2>Demande envoyée</h2>
+            <p>Votre compte sera accessible après validation par l’administrateur.</p>
+            <Link className="button button-primary auth-submit" to="/login">Retour à la connexion</Link>
+          </div>
+        ) : <form className="auth-form" onSubmit={submit}>
           {isRegister && <label className="form-field">Nom complet
             <input autoComplete="name" required minLength="2" maxLength="80" value={name} onChange={(event) => setName(event.target.value)} placeholder="Votre nom" />
           </label>}
@@ -64,10 +77,10 @@ export default function AuthPage({ mode }) {
           <button className="button button-primary auth-submit" type="submit" disabled={submitting}>
             {submitting ? 'Patientez…' : isRegister ? 'Créer mon compte' : 'Se connecter'}
           </button>
-        </form>
-        <p className="auth-switch">{isRegister ? 'Vous avez déjà un compte ?' : 'Pas encore de compte ?'}{' '}
+        </form>}
+        {!registrationSent && <p className="auth-switch">{isRegister ? 'Vous avez déjà un compte ?' : 'Pas encore de compte ?'}{' '}
           <Link to={isRegister ? '/login' : '/register'}>{isRegister ? 'Se connecter' : 'Créer un compte'}</Link>
-        </p>
+        </p>}
       </section>
     </div>
   );

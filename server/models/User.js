@@ -4,6 +4,8 @@ const userSchema = new mongoose.Schema({
   nom_complet: { type: String, required: true, trim: true, maxlength: 80 },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 254 },
   password_hash: { type: String, select: false },
+  role: { type: String, enum: ['client', 'admin'], default: 'client', index: true },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
   session_version: { type: Number, default: 0 },
   devise: { type: String, default: 'TND', trim: true },
   date_inscription: { type: Date, default: Date.now }

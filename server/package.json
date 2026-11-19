@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch index.js",
     "start": "node index.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "admin:promote": "node scripts/promote-admin.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

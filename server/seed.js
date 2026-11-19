@@ -32,7 +32,7 @@ async function seed() {
   });
 
   const demoUserUpdate = {
-    $set: { nom_complet: 'Utilisateur Démo', devise: 'TND' },
+    $set: { nom_complet: 'Utilisateur Démo', devise: 'TND', role: 'client', status: 'approved' },
     $setOnInsert: { date_inscription: new Date() }
   };
   if (process.env.DEMO_PASSWORD) {

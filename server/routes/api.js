@@ -10,11 +10,11 @@ const transactionPopulate = [
   { path: 'user_id', select: 'nom_complet devise' }
 ];
 
-function parseObjectId(value) {
+export function parseObjectId(value) {
   return mongoose.isValidObjectId(value);
 }
 
-function parsePagination(query) {
+export function parsePagination(query) {
   const page = Math.max(1, Number.parseInt(query.page, 10) || 1);
   const limit = Math.min(PAGE_SIZE_MAX, Math.max(1, Number.parseInt(query.limit, 10) || 20));
   return { page, limit, skip: (page - 1) * limit };
@@ -41,7 +41,7 @@ function transactionFilters(query) {
   return filter;
 }
 
-function validateTransactionInput(body, { partial = false } = {}) {
+export function validateTransactionInput(body, { partial = false } = {}) {
   const error = (message) => Object.assign(new Error(message), { status: 400 });
   if (!partial || body.titre !== undefined) {
     if (typeof body.titre !== 'string' || !body.titre.trim()) throw error('Le titre est obligatoire.');
@@ -63,7 +63,7 @@ function validateTransactionInput(body, { partial = false } = {}) {
   }
 }
 
-function pickTransactionFields(body, userId) {
+export function pickTransactionFields(body, userId) {
   const data = {};
   for (const field of ['titre', 'type', 'mode_paiement', 'date_transaction', 'categorie_id']) {
     if (body[field] !== undefined) data[field] = body[field];

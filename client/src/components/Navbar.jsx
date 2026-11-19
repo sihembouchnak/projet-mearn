@@ -27,6 +27,7 @@ export default function Navbar() {
       </NavLink>
       {user ? <>
         <nav className="nav-links" aria-label="Navigation principale">
+          {user.role === 'admin' && <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Administration</NavLink>}
           <NavLink to="/transactions" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             Transactions
           </NavLink>

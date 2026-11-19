@@ -9,9 +9,10 @@ import Budget from './models/Budget.js';
 import Category from './models/Category.js';
 import Transaction from './models/Transaction.js';
 import User from './models/User.js';
-import { authenticate } from './auth/session.js';
+import { authenticate, requireAdmin } from './auth/session.js';
 import auth from './routes/auth.js';
 import api from './routes/api.js';
+import admin from './routes/admin.js';
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
@@ -61,6 +62,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 app.use('/api/auth', requireDatabase, auth);
+app.use('/api/admin', requireDatabase, authenticate, requireAdmin, admin);
 app.use('/api', requireDatabase, authenticate, api);
 app.use((req, res) => res.status(404).json({ message: 'Route introuvable.' }));
 app.use((error, req, res, next) => {
@@ -80,6 +82,8 @@ try {
     serverSelectionTimeoutMS: 10000,
     dbName: process.env.MONGODB_DB || 'projet3'
   });
+  await User.updateMany({ role: { $exists: false } }, { $set: { role: 'client' } });
+  await User.updateMany({ status: { $exists: false } }, { $set: { status: 'approved' } });
   await Promise.all([Budget.init(), Category.init(), Transaction.init(), User.init()]);
   indexesReady = true;
   databaseInitialized = true;

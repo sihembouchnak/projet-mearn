@@ -63,14 +63,26 @@ export async function authenticate(req, res, next) {
   }
 
   try {
-    const user = await User.findById(payload.sub).select('session_version');
+    const user = await User.findById(payload.sub).select('session_version role status');
     if (!user || payload.version !== (user.session_version ?? 0)) {
       clearSessionCookie(res);
       return res.status(401).json({ message: 'Votre session a ete fermee. Veuillez vous reconnecter.' });
     }
+    if (user.status && user.status !== 'approved') {
+      clearSessionCookie(res);
+      return res.status(403).json({ message: 'Votre compte n’est pas approuve.' });
+    }
     req.userId = payload.sub;
+    req.userRole = user.role ?? 'client';
     next();
   } catch (error) {
     next(error);
   }
+}
+
+export function requireAdmin(req, res, next) {
+  if (req.userRole !== 'admin') {
+    return res.status(403).json({ message: 'Cette action est reservee a l’administrateur.' });
+  }
+  next();
 }
